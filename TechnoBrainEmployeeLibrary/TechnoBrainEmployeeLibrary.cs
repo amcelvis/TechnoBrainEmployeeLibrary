@@ -7,54 +7,53 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace TechnoBrainEmployeeLibrary {
     public class Employees {  
-        string[,] employeeDB;
-        //Dummy Constructor
+        
+        //Empty Constructor for test purpose 
         public Employees() {
 
         }
         //Main Constructor
         public Employees(string csvFile) {
-            loadCSV_into_Array(csvFile); //load csv file
-            validateSalariesCSV(); //Validate Salaries
-            CheckifOnlyCEO(employeeDB); //checks if we have only 1 CEO in the company
-
+            string[,] employeeArray = loadCSV_into_Array(csvFile); //load csv file
+            validateSalariesCSV(employeeArray); //Validate Salaries
+            checkIfOnlyCEO(employeeArray); //checks if we have only 1 CEO in the company, returns a bool value 
+            checkIfAllManagersAreEmployees(employeeArray);//it returns a boolean value, if true all managers are listed as employees.
         }
-        public void validateSalariesCSV() {
-            for(int i = 0; i < 5; i++) {
+        public void validateSalariesCSV(string[,] stringArray) {//employee string will be formed once loadCSV is called
+            for(int i = 0; i < 5; i++) {//i<5 because we know we have 5 rows in the Example Array, otherwise bad idea
                 try {
-                    Convert.ToInt32(employeeDB[i, 2]);
+                    Convert.ToInt32(stringArray[i, 2]);//check the salary column and try converting to Integer
                 }catch(Exception e) {   //If it throws an Exception (FormatException this is not an Integer
-                    e.Data.Add("UserMessage", employeeDB[i, 1].ToString() + " is not an valid Integer");
+                    e.Data.Add("UserMessage", stringArray[i, 1].ToString() + " is not an valid Integer");
                     throw;
                 }
             }
         }
-        public long salaryBudget(string specifiedManager) { //Instance method that returns salary budget from specified manager
-            return 0;
-        }
-        public bool checkIfAllEmployeesHaveManager(string[,] employeeDB) {
-            for(int i = 0; i <= 200; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (employeeDB[i,j].Equals(null)) {
-                        return true;
-                    }
-                    return false;
+        public bool checkIfAllManagersAreEmployees(string[,] employeeDB) {
+            bool allManagersAreEmployees = false;
+            for(int i = 0; i < 5; i++) {//5 rows for 5 employees otherwise bad idea, will edit later               
+                for(int j = 0; j < 5; j++) {
+                    if (employeeDB[i, 1] == "")//Empty string needs not to be checked
+                        continue;
+                    else if( employeeDB[i, 1] == employeeDB[j, 0])
+                        { allManagersAreEmployees = true; break; }
+                    else { allManagersAreEmployees = false; break; }
                 }
             }
-            return false;
+            return allManagersAreEmployees;
         }
-        public bool CheckifOnlyCEO(string[,] employeeDB) {
+        public bool checkIfOnlyCEO(string[,] employeeDB) {
             int CEO=0;
             for(int i = 0; i <= 5; i++) {
-                    if (employeeDB[i,1].Equals(null))
+                    if (employeeDB[i,1].Equals(""))
                         CEO+=1;                    
             }
             if (CEO == 1)
                 return true;
             else return false;
         }
-        public void loadCSV_into_Array(string filePath) {
-            employeeDB = new string[5,3] { {"","",""},{"","",""},{"","",""},{"","",""},{"","",""} };//Initialise TableArray
+        public string[,] loadCSV_into_Array(string filePath) {
+            string[,] employeeDB = new string[5,3] { {"","",""},{"","",""},{"","",""},{"","",""},{"","",""} };//Initialise TableArray
             try {
                 using (TextFieldParser csvParser = new TextFieldParser(filePath)) {
 
@@ -73,9 +72,31 @@ namespace TechnoBrainEmployeeLibrary {
                         }
                         //At this point, All rows filled
                     }
-                    //CSV file is read into memory.
+                    return employeeDB;//CSV file is read into memory.
                 }
             }catch(Exception ie) { throw; }
+        }
+        /**
+         * QUESTION 2B: Instance Method to Return Salary Budget from specified Manager
+         * 
+         */
+        public long salaryBudget(string specifiedManager, string[,] employeeArray) { //Instance method that returns salary budget from specified manager
+            long salaryBudget = 0;
+            for (int i = 0; i < 5; i++) {
+                if (employeeArray[i, 1].Equals(specifiedManager)) {//check all employees with specified manager
+                    try {
+                        salaryBudget += Convert.ToInt64(employeeArray[i, 2]);//salary column was loaded as string so we have to convert to long
+                    }
+                    catch (Exception e) { }//If salary is not a valid long integer, formatException will be thrown
+                    //All Employee Salaries are added except manager
+                }
+                if (employeeArray[i, 0].Equals(specifiedManager))//check if employee is specified manager and add their salary to the budget
+                    try {
+                        salaryBudget += Convert.ToInt64(employeeArray[i, 2]);//Manager Salary now added
+                    }
+                    catch (Exception e) { }
+            }
+            return salaryBudget;
         }
     }
 }

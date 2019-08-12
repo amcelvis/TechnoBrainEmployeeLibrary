@@ -12,13 +12,13 @@ namespace TechnoBrainEmployeeLibrary {
         }
         [Test]
         public void validateCSVSalaries_throwExceptionFormatException() {
-            Assert.Throws<Exception>(() => new Employees().validateSalariesCSV());
+            Assert.Throws<Exception>(() => new Employees().validateSalariesCSV(new string[2, 1] { { "" }, { "" } }));
         }
 
        [Test] 
        public void SalaryBudget_isNotNull() { //Test Salary Budget is not Null
             Employees emp = new Employees();
-            var salaryBudget = emp.salaryBudget("Employee4");
+            var salaryBudget = emp.salaryBudget("Employee4", new string[2, 1] { { "" }, { "" } });
             Assert.IsNotNull(salaryBudget); //check that the salary is 
         }
 
@@ -26,7 +26,7 @@ namespace TechnoBrainEmployeeLibrary {
         public void checkifCEO_returns_bool() {
             string[,] employeeD = new string[2,2] { {"","" }, { "", "" } };
             Employees emp = new Employees();
-            Assert.IsFalse(emp.CheckifOnlyCEO(employeeD)); 
+            Assert.IsFalse(emp.checkIfOnlyCEO(employeeD)); 
         }
     }
 }
