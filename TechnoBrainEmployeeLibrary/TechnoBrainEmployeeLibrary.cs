@@ -10,7 +10,7 @@ namespace TechnoBrainEmployeeLibrary {
         
         //Empty Constructor for test purpose 
         public Employees() {
-
+            
         }
         //Main Constructor
         public Employees(string csvFile) {
@@ -18,26 +18,29 @@ namespace TechnoBrainEmployeeLibrary {
             validateSalariesCSV(employeeArray); //Validate Salaries
             checkIfOnlyCEO(employeeArray); //checks if we have only 1 CEO in the company, returns a bool value 
             checkIfAllManagersAreEmployees(employeeArray);//it returns a boolean value, if true all managers are listed as employees.
+            checkEmployeeReportsToOneManager(employeeArray);//returns true if All Employees report to one manager
+            noCyclicReference(employeeArray);//Implementation yet to be filled
         }
-        public void validateSalariesCSV(string[,] stringArray) {//employee string will be formed once loadCSV is called
+        public void validateSalariesCSV(string[,] employeeDB) {//employee string will be formed once loadCSV is called
             for(int i = 0; i < 5; i++) {//i<5 because we know we have 5 rows in the Example Array, otherwise bad idea
                 try {
-                    Convert.ToInt32(stringArray[i, 2]);//check the salary column and try converting to Integer
+                    Convert.ToInt32(employeeDB[i, 2]);//check the salary column and try converting to Integer
                 }catch(Exception e) {   //If it throws an Exception (FormatException this is not an Integer
-                    e.Data.Add("UserMessage", stringArray[i, 1].ToString() + " is not an valid Integer");
+                    e.Data.Add("UserMessage", employeeDB[i, 1].ToString() + " is not an valid Integer");
                     throw;
                 }
             }
         }
         public bool checkIfAllManagersAreEmployees(string[,] employeeDB) {
             bool allManagersAreEmployees = false;
-            for(int i = 0; i < 5; i++) {//5 rows for 5 employees otherwise bad idea, will edit later               
+            for(int i = 0; i < 5; i++) {
                 for(int j = 0; j < 5; j++) {
-                    if (employeeDB[i, 1] == "")//Empty string needs not to be checked
-                        continue;
-                    else if( employeeDB[i, 1] == employeeDB[j, 0])
-                        { allManagersAreEmployees = true; break; }
-                    else { allManagersAreEmployees = false; break; }
+                    if (employeeDB[i, 1] != "") {
+                        if (employeeDB[j, 0] == employeeDB[i, 1]) {
+                            allManagersAreEmployees = true;
+                        }
+                        else allManagersAreEmployees = false;
+                    }
                 }
             }
             return allManagersAreEmployees;
@@ -51,6 +54,27 @@ namespace TechnoBrainEmployeeLibrary {
             if (CEO == 1)
                 return true;
             else return false;
+        }
+        public bool checkEmployeeReportsToOneManager(string[,] employeeDB) {
+            string tempManager;
+            int managerCount = 1;
+            for (int i = 0; i < 5; i++) {
+                if (employeeDB[i, 1] != "") {
+                    tempManager = employeeDB[i, 1];//save employee's manager in temporary location
+                    for (int j = 0; j < 5; j++) {
+                        if (employeeDB[j, 1] != tempManager)//check all managers for this employee
+                            managerCount += 1;  //if manager is different, increment counter
+                    }
+                    if (managerCount > 1) {
+                        return false;   //exit loop if we have more than one manager for employee and return false
+                    }
+                    else continue;
+                }
+            }
+            return true;//return true if all employees have 1 manager
+        }
+        public void noCyclicReference(string[,] employeeDB) {
+
         }
         public string[,] loadCSV_into_Array(string filePath) {
             string[,] employeeDB = new string[5,3] { {"","",""},{"","",""},{"","",""},{"","",""},{"","",""} };//Initialise TableArray
@@ -78,21 +102,20 @@ namespace TechnoBrainEmployeeLibrary {
         }
         /**
          * QUESTION 2B: Instance Method to Return Salary Budget from specified Manager
-         * 
          */
-        public long salaryBudget(string specifiedManager, string[,] employeeArray) { //Instance method that returns salary budget from specified manager
+        public long salaryBudget(string specifiedManager, string[,] employeeDB) { //Instance method that returns salary budget from specified manager
             long salaryBudget = 0;
             for (int i = 0; i < 5; i++) {
-                if (employeeArray[i, 1].Equals(specifiedManager)) {//check all employees with specified manager
+                if (employeeDB[i, 1].Equals(specifiedManager)) {//check all employees with specified manager
                     try {
-                        salaryBudget += Convert.ToInt64(employeeArray[i, 2]);//salary column was loaded as string so we have to convert to long
+                        salaryBudget += Convert.ToInt64(employeeDB[i, 2]);//salary column was loaded as string so we have to convert to long
                     }
                     catch (Exception e) { }//If salary is not a valid long integer, formatException will be thrown
                     //All Employee Salaries are added except manager
                 }
-                if (employeeArray[i, 0].Equals(specifiedManager))//check if employee is specified manager and add their salary to the budget
+                if (employeeDB[i, 0].Equals(specifiedManager))//check if employee is specified manager and add their salary to the budget
                     try {
-                        salaryBudget += Convert.ToInt64(employeeArray[i, 2]);//Manager Salary now added
+                        salaryBudget += Convert.ToInt64(employeeDB[i, 2]);//Manager Salary now added
                     }
                     catch (Exception e) { }
             }
