@@ -44,7 +44,7 @@ namespace TechnoBrainEmployeeLibrary {
         }
         public bool checkIfOnlyCEO(string[,] employeeDB) {
             int CEO=0;
-            for(int i = 0; i <= 5; i++) {
+            for(int i = 0; i < 5; i++) {
                     if (employeeDB[i,1].Equals(""))
                         CEO+=1;                    
             }
