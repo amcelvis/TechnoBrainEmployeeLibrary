@@ -35,12 +35,9 @@ namespace TechnoBrainEmployeeLibrary {
             bool allManagersAreEmployees = false;
             for(int i = 0; i < 5; i++) {
                 for(int j = 0; j < 5; j++) {
-                    if (employeeDB[i, 1] != "") {
-                        if (employeeDB[j, 0] == employeeDB[i, 1]) {
+                    if (employeeDB[i, 1] != "") 
+                        if (employeeDB[j, 0] == employeeDB[i, 1]) 
                             allManagersAreEmployees = true;
-                        }
-                        else allManagersAreEmployees = false;
-                    }
                 }
             }
             return allManagersAreEmployees;
